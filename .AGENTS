@@ -1,0 +1,96 @@
+# .AGENTS
+
+Initial guide for contributors and coding agents in `bem-conecto-nest`.
+This is intentionally minimal and focused on core rules.
+
+## 1) Project Snapshot
+
+- Stack: NestJS + TypeScript + Prisma + MySQL + Jest
+- Entry module: `src/app/app.module.ts`
+- Active feature modules:
+  - `UserModule`
+  - `ProfessionalModule`
+  - `SessionModule`
+- Database schema: `prisma/schema.prisma`
+
+## 2) Architecture (Clean-ish by layers)
+
+- `src/domain`
+  - Pure business structures: entities, enums, domain DTOs.
+- `src/application`
+  - Use cases + repository contracts (`*.repository.ts`).
+  - Should contain business orchestration logic.
+- `src/presentation`
+  - HTTP controllers, request adaptation, output mapping.
+- `src/infra`
+  - Nest modules/wiring + repository implementations (Prisma/InMemory).
+  - Prisma service and database adapter code.
+
+Rule of thumb:
+- Domain knows nothing.
+- Application depends on domain + repository interfaces.
+- Presentation adapts HTTP -> application.
+- Infra implements interfaces and wires DI.
+
+## 3) Current Conventions To Keep
+
+- Use path alias imports: `@/...`
+- One use case per file under `application/*/use-cases`
+- Repository token pattern:
+  - `export const X_REPOSITORY = Symbol('X_REPOSITORY')`
+- Module wiring pattern:
+  - Register concrete repository
+  - Map token with `useExisting`
+  - Build use-cases with `useFactory` + `inject: [TOKEN]`
+- Keep controller output mapped (use `*Mapper.toHttp`)
+- Soft delete semantics in Prisma queries where applicable:
+  - Filter by `deletedAt: null`
+
+## 4) Feature Delivery Checklist (Core)
+
+When adding a new entity operation (`create/read/update/delete`):
+
+1. `application`: create/update use case.
+2. `application`: create/update repository contract.
+3. `infra/repositories`: implement in-memory repository.
+4. `infra/repositories`: implement Prisma repository.
+5. `presentation`: create/update DTOs and controller route.
+6. `infra/*module.ts`: wire use case and repository token.
+7. Add use case unit tests (`*.spec.ts`).
+8. Validate with test/build commands.
+
+## 5) Test Pattern
+
+- Prefer unit tests at use-case level.
+- For repository behavior in unit tests, use in-memory repositories.
+- Minimal expected test set per operation:
+  - Success scenario
+  - Not found / invalid scenario (when relevant)
+
+## 6) Commands
+
+- Install deps: `yarn install`
+- Run unit tests: `yarn test`
+- Run a specific test file: `yarn test <path-to-spec>`
+- Build: `yarn build`
+- Create migration: `yarn prisma migrate dev --name <migration-name>`
+- Prisma client generate: `yarn prisma:generate`
+
+## 7) Pragmatic Guardrails
+
+- Do not break existing module/provider wiring style.
+- Reuse existing patterns from `User` and `Professional` before introducing new structure.
+- Keep DTOs free of system-generated fields (`id`, `createdAt`, `updatedAt`, `deletedAt`) for create flows.
+- Convert date-like HTTP values before use-case execution when needed.
+
+## 8) Known Work In Progress
+
+Based on current `TODO.md`:
+- `Professional`: delete pending
+- `Patients`: CRUD pending
+- `Appointments`: CRUD pending
+- `Sessions`: read/update/delete pending
+
+---
+
+This file is a baseline. Extend it with domain rules, naming policies, error handling standards, and CI/CD expectations as the codebase matures.

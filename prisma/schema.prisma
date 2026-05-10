@@ -1,0 +1,160 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+enum UserType {
+  PROFESSIONAL
+  ASSISTANT
+  ADMIN
+}
+
+enum Gender {
+  MALE
+  FEMALE
+}
+
+enum AppointmentStatus {
+  SCHEDULED
+  CONFIRMED
+  COMPLETED
+  CANCELED
+  RESCHEDULED
+}
+
+model Professional {
+  id          String   @id @default(uuid())
+
+  name        String
+  email       String   @unique
+  cpf         String   @unique
+  rg          String?
+  phone       String
+  birthDate   DateTime
+  crp         String?
+  notes       String?
+  gender      Gender
+
+  users        User[]
+  patients     Patient[]
+  appointments Appointment[]
+  sessions     Session[]
+
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  deletedAt    DateTime?
+}
+
+model User {
+  id            String   @id @default(uuid())
+
+  name          String
+  email         String   @unique
+  password      String
+  phone         String?
+
+  userType      UserType
+
+  professional  Professional @relation(fields: [professionalId], references: [id])
+  professionalId String
+
+  appointments  Appointment[]
+
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  deletedAt     DateTime?
+
+  @@index([professionalId])
+}
+
+model Patient {
+  id              String   @id @default(uuid())
+
+  name            String
+  email           String
+  cpf             String
+  rg              String?
+  phone           String
+  birthDate       DateTime
+  notes           String?
+  gender          Gender
+
+  professional    Professional @relation(fields: [professionalId], references: [id])
+  professionalId  String
+
+  appointments    Appointment[]
+  sessions        Session[]
+
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  deletedAt       DateTime?
+
+  @@unique([professionalId, email])
+  @@unique([professionalId, cpf])
+
+  @@index([professionalId])
+}
+
+model Appointment {
+  id               String @id @default(uuid())
+
+  startAt          DateTime
+  endAt            DateTime
+
+  status           AppointmentStatus @default(SCHEDULED)
+
+  backgroundColor  String?
+  textColor        String?
+  display          String?
+
+  notes            String?
+
+  professional     Professional @relation(fields: [professionalId], references: [id])
+  professionalId   String
+
+  patient          Patient @relation(fields: [patientId], references: [id])
+  patientId        String
+
+  createdBy        User? @relation(fields: [createdById], references: [id])
+  createdById      String?
+
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+  deletedAt        DateTime?
+
+  @@index([professionalId])
+  @@index([patientId])
+  @@index([createdById])
+  @@index([startAt])
+}
+
+model Session{
+  id                       String         @id @default(uuid())
+  professionalId           String
+  professional             Professional   @relation(fields: [professionalId], references: [id])
+  patientId                String
+  patient                  Patient        @relation(fields: [patientId], references: [id])
+
+  sessionDate              DateTime
+
+  summary                  String?        @db.Text
+  behavioralObservations   String?        @db.Text
+  interventions            String?        @db.Text
+  patientReactions         String?        @db.Text
+  referrals                String?        @db.Text
+  therapeuticPlans         String?        @db.Text
+  diagnosticHypotheses     String?        @db.Text
+  techniqueUsed            String?        @db.Text
+
+  createdAt                DateTime       @default(now())
+  updatedAt                DateTime       @updatedAt
+  deletedAt                DateTime?
+
+  @@index([professionalId])
+  @@index([patientId])
+
+}
