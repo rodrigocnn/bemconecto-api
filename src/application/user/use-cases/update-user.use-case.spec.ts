@@ -19,12 +19,15 @@ describe('UpdateUserUseCase', () => {
 
     await userRepository.create(user);
 
-    const result = await sut.execute({
-      id: user.id,
-      name: 'Maria Oliveira',
-      phone: '63911111111',
-      userType: UserType.ADMIN,
-    });
+    const result = await sut.execute(
+      {
+        id: user.id,
+        name: 'Maria Oliveira',
+        phone: '63911111111',
+        userType: UserType.ADMIN,
+      },
+      'professional-1',
+    );
 
     expect(result.success).toBe(true);
 
@@ -42,10 +45,13 @@ describe('UpdateUserUseCase', () => {
     const userRepository = new InMemoryUserRepository();
     const sut = new UpdateUserUseCase(userRepository);
 
-    const result = await sut.execute({
-      id: 'non-existing-id',
-      name: 'Maria Oliveira',
-    });
+    const result = await sut.execute(
+      {
+        id: 'non-existing-id',
+        name: 'Maria Oliveira',
+      },
+      'professional-1',
+    );
 
     expect(result).toEqual({
       success: false,

@@ -39,11 +39,12 @@ export class PrismaAppoitmentRepository implements AppointmentRepository {
     return appointments.map((appointment) => this.toDomain(appointment));
   }
 
-  async findById(id: string): Promise<Appointment | null> {
+  async findById(id: string, professionalId?: string): Promise<Appointment | null> {
     const appointment = await this.prisma.client.appointment.findFirst({
       where: {
         id,
         deletedAt: null,
+        ...(professionalId ? { professionalId } : {}),
       },
     });
 
@@ -74,17 +75,19 @@ export class PrismaAppoitmentRepository implements AppointmentRepository {
     });
   }
 
-  async delete(id: string): Promise<boolean> {
-    await this.prisma.client.appointment.update({
+  async delete(id: string, professionalId?: string): Promise<boolean> {
+    const result = await this.prisma.client.appointment.updateMany({
       where: {
         id,
+        deletedAt: null,
+        ...(professionalId ? { professionalId } : {}),
       },
       data: {
         deletedAt: new Date(),
       },
     });
 
-    return true;
+    return result.count > 0;
   }
 
   private toDomain(appointment: {

@@ -4,10 +4,14 @@ import {
   getAppointmentColors,
 } from '@/application/appointment/utils/appointment-colors';
 import { Appointment } from '@/domain/appointment/entities/appointment';
-import { CreateAppointmentDto } from '@/presentation/appointment/dtos/create-appointment.dto';
+
+import { CreateAppointmentInput } from '../use-cases/dtos/create-appointment.input';
 
 export class CreateAppointmentMapper {
-  static toDomain(input: CreateAppointmentDto, patientName: string): Appointment {
+  static toDomain(
+    input: CreateAppointmentInput,
+    patientName: string,
+  ): Appointment {
     const status = DEFAULT_APPOINTMENT_STATUS;
     const { backgroundColor, textColor } = getAppointmentColors(status);
 

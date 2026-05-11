@@ -12,12 +12,14 @@ class InMemoryAppointmentRepository implements AppointmentRepository {
     this.items.push(appointment);
   }
 
-  async findAll(): Promise<Appointment[]> {
-    return this.items;
+  async findAll(professionalId: string): Promise<Appointment[]> {
+    return this.items.filter((item) => item.professionalId === professionalId);
   }
 
-  async findById(id: string): Promise<Appointment | null> {
-    const appointment = this.items.find((item) => item.id === id);
+  async findById(id: string, professionalId?: string): Promise<Appointment | null> {
+    const appointment = this.items.find(
+      (item) => item.id === id && (professionalId ? item.professionalId === professionalId : true),
+    );
     return appointment ?? null;
   }
 
@@ -32,8 +34,10 @@ class InMemoryAppointmentRepository implements AppointmentRepository {
     this.items[index] = appointment;
   }
 
-  async delete(id: string): Promise<boolean> {
-    const index = this.items.findIndex((item) => item.id === id);
+  async delete(id: string, professionalId?: string): Promise<boolean> {
+    const index = this.items.findIndex(
+      (item) => item.id === id && (professionalId ? item.professionalId === professionalId : true),
+    );
 
     if (index === -1) {
       return false;
@@ -52,12 +56,21 @@ class InMemoryPatientRepository implements PatientRepository {
     this.items.push(patient);
   }
 
-  async findAll(): Promise<Patient[]> {
-    return this.items.filter((item) => !item.deletedAt);
+  async findAll(professionalId?: string): Promise<Patient[]> {
+    return this.items.filter(
+      (item) =>
+        !item.deletedAt &&
+        (professionalId ? item.professionalId === professionalId : true),
+    );
   }
 
-  async findById(id: string): Promise<Patient | null> {
-    const patient = this.items.find((item) => item.id === id && !item.deletedAt);
+  async findById(id: string, professionalId?: string): Promise<Patient | null> {
+    const patient = this.items.find(
+      (item) =>
+        item.id === id &&
+        !item.deletedAt &&
+        (professionalId ? item.professionalId === professionalId : true),
+    );
     return patient ?? null;
   }
 
@@ -71,8 +84,13 @@ class InMemoryPatientRepository implements PatientRepository {
     this.items[index] = patient;
   }
 
-  async delete(id: string): Promise<boolean> {
-    const index = this.items.findIndex((item) => item.id === id && !item.deletedAt);
+  async delete(id: string, professionalId?: string): Promise<boolean> {
+    const index = this.items.findIndex(
+      (item) =>
+        item.id === id &&
+        !item.deletedAt &&
+        (professionalId ? item.professionalId === professionalId : true),
+    );
 
     if (index === -1) {
       return false;
@@ -176,6 +194,39 @@ describe('CreateAppointmentUseCase', () => {
       endAt: new Date('2026-05-08T11:00:00.000Z'),
       professionalId: 'professional-1',
       patientId: 'patient-unknown',
+    });
+
+    expect(result).toEqual({
+      success: false,
+      error: 'Patient not found',
+    });
+  });
+
+  it('should return failure when patient belongs to another professional', async () => {
+    const appointmentRepository = new InMemoryAppointmentRepository();
+    const patientRepository = new InMemoryPatientRepository();
+    const sut = new CreateAppointmentUseCase(
+      appointmentRepository,
+      patientRepository,
+    );
+
+    const patient = new Patient({
+      name: 'Maria Silva',
+      email: 'maria@example.com',
+      cpf: '12345678901',
+      phone: '63999999999',
+      birthDate: new Date('1992-01-01T00:00:00.000Z'),
+      gender: Gender.FEMALE,
+      professionalId: 'professional-2',
+    } as Patient);
+
+    await patientRepository.create(patient);
+
+    const result = await sut.execute({
+      startAt: new Date('2026-05-08T10:00:00.000Z'),
+      endAt: new Date('2026-05-08T11:00:00.000Z'),
+      professionalId: 'professional-1',
+      patientId: patient.id,
     });
 
     expect(result).toEqual({

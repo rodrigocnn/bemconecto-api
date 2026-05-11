@@ -27,10 +27,11 @@ export class PrismaProfessionalRepository implements ProfessionalRepository {
     });
   }
 
-  async findAll(): Promise<Professional[]> {
+  async findAll(professionalId?: string): Promise<Professional[]> {
     const professionals = await this.prisma.client.professional.findMany({
       where: {
         deletedAt: null,
+        ...(professionalId ? { id: professionalId } : {}),
       },
     });
 
@@ -39,11 +40,12 @@ export class PrismaProfessionalRepository implements ProfessionalRepository {
     );
   }
 
-  async findById(id: string): Promise<Professional | null> {
+  async findById(id: string, professionalId?: string): Promise<Professional | null> {
     const professional = await this.prisma.client.professional.findFirst({
       where: {
         id,
         deletedAt: null,
+        ...(professionalId ? { id: professionalId } : {}),
       },
     });
 
@@ -69,16 +71,18 @@ export class PrismaProfessionalRepository implements ProfessionalRepository {
     });
   }
 
-  async delete(id: string): Promise<boolean> {
-    await this.prisma.client.professional.update({
+  async delete(id: string, professionalId?: string): Promise<boolean> {
+    const result = await this.prisma.client.professional.updateMany({
       where: {
         id,
+        deletedAt: null,
+        ...(professionalId ? { id: professionalId } : {}),
       },
       data: {
         deletedAt: new Date(),
       },
     });
 
-    return true;
+    return result.count > 0;
   }
 }

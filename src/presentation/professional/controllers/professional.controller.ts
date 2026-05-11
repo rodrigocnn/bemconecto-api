@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, Param, Patch, Post } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Patch, Post, Req } from '@nestjs/common';
 
 import { Result } from '@/application/shared/result';
 import { CreateProfessionalUseCase } from '@/application/professional/use-cases/create-professional.use-case';
@@ -9,6 +9,7 @@ import { CreateProfessionalDto } from '@/presentation/professional/dtos/create-p
 import { UpdateProfessionalDto } from '@/presentation/professional/dtos/update-professional-dto';
 import { ProfessionalMapper } from '@/presentation/professional/mappers/professional.mapper';
 import { getErrorMessage } from '@/presentation/shared/get-error-message';
+import { AuthenticatedRequest } from '@/infra/auth/authenticated-request';
 
 @Controller('professionals')
 export class ProfessionalController {
@@ -39,8 +40,12 @@ export class ProfessionalController {
   }
 
   @Get()
-  async findAll(): Promise<Result<ReturnType<typeof ProfessionalMapper.toHttp>[]>> {
-    const result = await this.findAllProfessionalsUseCase.execute();
+  async findAll(
+    @Req() request: AuthenticatedRequest,
+  ): Promise<Result<ReturnType<typeof ProfessionalMapper.toHttp>[]>> {
+    const result = await this.findAllProfessionalsUseCase.execute(
+      request.user.professionalId,
+    );
 
     if (!result.success) {
       return {
@@ -59,8 +64,13 @@ export class ProfessionalController {
   async update(
     @Param('id') id: string,
     @Body() body: UpdateProfessionalDto,
+    @Req() request: AuthenticatedRequest,
   ): Promise<Result<ReturnType<typeof ProfessionalMapper.toHttp>>> {
-    const result = await this.updateProfessionalUseCase.execute(id, body);
+    const result = await this.updateProfessionalUseCase.execute(
+      id,
+      body,
+      request.user.professionalId,
+    );
 
     if (!result.success) {
       return {
@@ -76,8 +86,14 @@ export class ProfessionalController {
   }
 
   @Delete(':id')
-  async delete(@Param('id') id: string): Promise<Result<boolean>> {
-    const result = await this.deleteProfessionalUseCase.execute(id);
+  async delete(
+    @Param('id') id: string,
+    @Req() request: AuthenticatedRequest,
+  ): Promise<Result<boolean>> {
+    const result = await this.deleteProfessionalUseCase.execute(
+      id,
+      request.user.professionalId,
+    );
 
     if (!result.success) {
       return {

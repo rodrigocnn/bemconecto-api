@@ -5,9 +5,9 @@ import { Session } from '@/domain/session/entities/session';
 export class FindAllSessionsUseCase {
   constructor(private readonly sessionRepository: SessionRepository) {}
 
-  async execute(): Promise<Result<Session[]>> {
+  async execute(professionalId: string): Promise<Result<Session[]>> {
     try {
-      const sessions = await this.sessionRepository.findAll();
+      const sessions = await this.sessionRepository.findAll(professionalId);
 
       return Result.ok(sessions);
     } catch (error) {

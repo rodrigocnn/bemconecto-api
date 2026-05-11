@@ -6,6 +6,7 @@ import {
   Param,
   Patch,
   Post,
+  Req,
 } from '@nestjs/common';
 
 import { Result } from '@/application/shared/result';
@@ -23,6 +24,7 @@ import { CreateUserDto } from '@/presentation/user/dtos/create-user.dto';
 import { UpdateUserDto } from '@/presentation/user/dtos/update-user.dto';
 import { UserMapper } from '@/presentation/user/mappers/user.mapper';
 import { getErrorMessage } from '@/presentation/shared/get-error-message';
+import { AuthenticatedRequest } from '@/infra/auth/authenticated-request';
 
 @Controller('users')
 export class UserController {
@@ -36,9 +38,11 @@ export class UserController {
   @Post()
   async create(
     @Body() body: CreateUserDto,
+    @Req() request: AuthenticatedRequest,
   ): Promise<Result<ReturnType<typeof UserMapper.toHttp>>> {
     const input: CreateUserUseCaseInput = {
       ...body,
+      professionalId: request.user.professionalId,
     };
 
     const result = await this.createUserUseCase.execute(input);
@@ -57,8 +61,12 @@ export class UserController {
   }
 
   @Get()
-  async findAll(): Promise<Result<ReturnType<typeof UserMapper.toHttpMany>>> {
-    const result = await this.findAllUsersUseCase.execute();
+  async findAll(
+    @Req() request: AuthenticatedRequest,
+  ): Promise<Result<ReturnType<typeof UserMapper.toHttpMany>>> {
+    const result = await this.findAllUsersUseCase.execute(
+      request.user.professionalId,
+    );
 
     if (!result.success) {
       return {
@@ -77,13 +85,17 @@ export class UserController {
   async update(
     @Param('id') id: string,
     @Body() body: UpdateUserDto,
+    @Req() request: AuthenticatedRequest,
   ): Promise<Result<ReturnType<typeof UserMapper.toHttp>>> {
     const input: UpdateUserUseCaseInput = {
       id,
       ...body,
     };
 
-    const result = await this.updateUserUseCase.execute(input);
+    const result = await this.updateUserUseCase.execute(
+      input,
+      request.user.professionalId,
+    );
 
     if (!result.success) {
       return {
@@ -101,8 +113,12 @@ export class UserController {
   @Delete(':id')
   async delete(
     @Param('id') id: string,
+    @Req() request: AuthenticatedRequest,
   ): Promise<Result<ReturnType<typeof UserMapper.toHttp>>> {
-    const result = await this.deleteUserUseCase.execute(id);
+    const result = await this.deleteUserUseCase.execute(
+      id,
+      request.user.professionalId,
+    );
 
     if (!result.success) {
       return {

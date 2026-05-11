@@ -3,7 +3,8 @@ import { CreateAppointmentMapper } from '@/application/appointment/mappers/creat
 import { PatientRepository } from '@/application/patient/repositories/patient.repository';
 import { Result } from '@/application/shared/result';
 import { Appointment } from '@/domain/appointment/entities/appointment';
-import { CreateAppointmentDto } from '@/presentation/appointment/dtos/create-appointment.dto';
+
+import { CreateAppointmentInput } from './dtos/create-appointment.input';
 
 export class CreateAppointmentUseCase {
   constructor(
@@ -11,9 +12,12 @@ export class CreateAppointmentUseCase {
     private readonly patientRepository: PatientRepository,
   ) {}
 
-  async execute(input: CreateAppointmentDto): Promise<Result<Appointment>> {
+  async execute(input: CreateAppointmentInput): Promise<Result<Appointment>> {
     try {
-      const patient = await this.patientRepository.findById(input.patientId);
+      const patient = await this.patientRepository.findById(
+        input.patientId,
+        input.professionalId,
+      );
 
       if (!patient) {
         return Result.fail('Patient not found');

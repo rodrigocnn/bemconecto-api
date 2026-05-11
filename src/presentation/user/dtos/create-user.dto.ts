@@ -6,5 +6,4 @@ export class CreateUserDto {
   password!: string;
   phone?: string;
   userType!: UserType;
-  professionalId!: string;
 }

@@ -19,7 +19,7 @@ describe('DeleteUserUseCase', () => {
 
     await userRepository.create(user);
 
-    const result = await sut.execute(user.id);
+    const result = await sut.execute(user.id, 'professional-1');
 
     expect(result.success).toBe(true);
 
@@ -28,14 +28,14 @@ describe('DeleteUserUseCase', () => {
       expect(result.data.deletedAt).toBeInstanceOf(Date);
     }
 
-    expect(await userRepository.findAll()).toHaveLength(0);
+    expect(await userRepository.findAll('professional-1')).toHaveLength(0);
   });
 
   it('should return failure when user does not exist', async () => {
     const userRepository = new InMemoryUserRepository();
     const sut = new DeleteUserUseCase(userRepository);
 
-    const result = await sut.execute('non-existing-id');
+    const result = await sut.execute('non-existing-id', 'professional-1');
 
     expect(result).toEqual({
       success: false,

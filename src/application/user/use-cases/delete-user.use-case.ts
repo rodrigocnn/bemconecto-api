@@ -5,9 +5,9 @@ import { User } from '@/domain/user/entities/user';
 export class DeleteUserUseCase {
   constructor(private readonly userRepository: UserRepository) {}
 
-  async execute(id: string): Promise<Result<User>> {
+  async execute(id: string, professionalId: string): Promise<Result<User>> {
     try {
-      const user = await this.userRepository.delete(id);
+      const user = await this.userRepository.delete(id, professionalId);
 
       if (!user) {
         return Result.fail(`User with id "${id}" not found`);

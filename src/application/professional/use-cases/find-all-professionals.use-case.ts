@@ -7,9 +7,11 @@ export class FindAllProfessionalsUseCase {
     private readonly professionalRepository: ProfessionalRepository,
   ) {}
 
-  async execute(): Promise<Result<Professional[]>> {
+  async execute(professionalId: string): Promise<Result<Professional[]>> {
     try {
-      const professionals = await this.professionalRepository.findAll();
+      const professionals = await this.professionalRepository.findAll(
+        professionalId,
+      );
 
       return Result.ok(professionals);
     } catch (error) {

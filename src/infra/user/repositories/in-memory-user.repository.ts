@@ -13,8 +13,12 @@ export class InMemoryUserRepository implements UserRepository {
     this.items.push(user);
   }
 
-  async findAll(): Promise<User[]> {
-    return this.items.filter((item) => !item.deletedAt);
+  async findAll(professionalId?: string): Promise<User[]> {
+    return this.items.filter(
+      (item) =>
+        !item.deletedAt &&
+        (professionalId ? item.professionalId === professionalId : true),
+    );
   }
 
   async findByEmail(email: string): Promise<User | null> {
@@ -23,9 +27,16 @@ export class InMemoryUserRepository implements UserRepository {
     );
   }
 
-  async update(id: string, data: UpdateUserRepositoryInput): Promise<User | null> {
+  async update(
+    id: string,
+    data: UpdateUserRepositoryInput,
+    professionalId?: string,
+  ): Promise<User | null> {
     const userIndex = this.items.findIndex(
-      (item) => item.id === id && !item.deletedAt,
+      (item) =>
+        item.id === id &&
+        !item.deletedAt &&
+        (professionalId ? item.professionalId === professionalId : true),
     );
 
     if (userIndex === -1) {
@@ -44,9 +55,12 @@ export class InMemoryUserRepository implements UserRepository {
     return updatedUser;
   }
 
-  async delete(id: string): Promise<User | null> {
+  async delete(id: string, professionalId?: string): Promise<User | null> {
     const userIndex = this.items.findIndex(
-      (item) => item.id === id && !item.deletedAt,
+      (item) =>
+        item.id === id &&
+        !item.deletedAt &&
+        (professionalId ? item.professionalId === professionalId : true),
     );
 
     if (userIndex === -1) {

@@ -5,9 +5,9 @@ import { User } from '@/domain/user/entities/user';
 export class FindAllUsersUseCase {
   constructor(private readonly userRepository: UserRepository) {}
 
-  async execute(): Promise<Result<User[]>> {
+  async execute(professionalId: string): Promise<Result<User[]>> {
     try {
-      const users = await this.userRepository.findAll();
+      const users = await this.userRepository.findAll(professionalId);
 
       return Result.ok(users);
     } catch (error) {

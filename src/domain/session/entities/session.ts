@@ -1,5 +1,6 @@
 interface SessionProps {
   id?: string;
+  professionalId: string;
   patientId: string;
   sessionDate: Date | string;
   summary: string;
@@ -17,6 +18,7 @@ interface SessionProps {
 
 export class Session {
   id!: string;
+  professionalId!: string;
   patientId!: string;
   sessionDate!: Date;
   summary!: string;

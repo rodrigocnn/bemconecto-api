@@ -12,12 +12,21 @@ class InMemoryAppointmentRepository implements AppointmentRepository {
     this.items.push(appointment);
   }
 
-  async findAll(): Promise<Appointment[]> {
-    return this.items.filter((item) => !item.deletedAt);
+  async findAll(professionalId: string): Promise<Appointment[]> {
+    return this.items.filter(
+      (item) => !item.deletedAt && item.professionalId === professionalId,
+    );
   }
 
-  async findById(id: string): Promise<Appointment | null> {
-    return this.items.find((item) => item.id === id && !item.deletedAt) ?? null;
+  async findById(id: string, professionalId?: string): Promise<Appointment | null> {
+    return (
+      this.items.find(
+        (item) =>
+          item.id === id &&
+          !item.deletedAt &&
+          (professionalId ? item.professionalId === professionalId : true),
+      ) ?? null
+    );
   }
 
   async update(appointment: Appointment): Promise<void> {
@@ -30,8 +39,8 @@ class InMemoryAppointmentRepository implements AppointmentRepository {
     this.items[index] = appointment;
   }
 
-  async delete(id: string): Promise<boolean> {
-    const appointment = await this.findById(id);
+  async delete(id: string, professionalId?: string): Promise<boolean> {
+    const appointment = await this.findById(id, professionalId);
 
     if (!appointment) {
       return false;
@@ -49,12 +58,23 @@ class InMemoryPatientRepository implements PatientRepository {
     this.items.push(patient);
   }
 
-  async findAll(): Promise<Patient[]> {
-    return this.items.filter((item) => !item.deletedAt);
+  async findAll(professionalId?: string): Promise<Patient[]> {
+    return this.items.filter(
+      (item) =>
+        !item.deletedAt &&
+        (professionalId ? item.professionalId === professionalId : true),
+    );
   }
 
-  async findById(id: string): Promise<Patient | null> {
-    return this.items.find((item) => item.id === id && !item.deletedAt) ?? null;
+  async findById(id: string, professionalId?: string): Promise<Patient | null> {
+    return (
+      this.items.find(
+        (item) =>
+          item.id === id &&
+          !item.deletedAt &&
+          (professionalId ? item.professionalId === professionalId : true),
+      ) ?? null
+    );
   }
 
   async update(patient: Patient): Promise<void> {
@@ -67,8 +87,8 @@ class InMemoryPatientRepository implements PatientRepository {
     this.items[index] = patient;
   }
 
-  async delete(id: string): Promise<boolean> {
-    const patient = await this.findById(id);
+  async delete(id: string, professionalId?: string): Promise<boolean> {
+    const patient = await this.findById(id, professionalId);
 
     if (!patient) {
       return false;
@@ -107,13 +127,17 @@ describe('UpdateAppointmentUseCase', () => {
     await patientRepository.create(patient);
     await appointmentRepository.create(appointment);
 
-    const result = await sut.execute(appointment.id, {
-      patientId: patient.id,
-      status: 'CONFIRMED',
-      backgroundColor: '#fff',
-      textColor: '#000',
-      display: 'block',
-    });
+    const result = await sut.execute(
+      appointment.id,
+      {
+        patientId: patient.id,
+        status: 'CONFIRMED',
+        backgroundColor: '#fff',
+        textColor: '#000',
+        display: 'block',
+      },
+      'professional-1',
+    );
 
     expect(result.success).toBe(true);
 
@@ -132,7 +156,11 @@ describe('UpdateAppointmentUseCase', () => {
     const patientRepository = new InMemoryPatientRepository();
     const sut = new UpdateAppointmentUseCase(appointmentRepository, patientRepository);
 
-    const result = await sut.execute('non-existing-id', { status: 'CONFIRMED' });
+    const result = await sut.execute(
+      'non-existing-id',
+      { status: 'CONFIRMED' },
+      'professional-1',
+    );
 
     expect(result).toEqual({
       success: false,

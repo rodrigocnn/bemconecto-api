@@ -10,12 +10,20 @@ export class InMemoryProfessionalRepository implements ProfessionalRepository {
     this.items.push(professional);
   }
 
-  async findAll(): Promise<Professional[]> {
-    return this.items;
+  async findAll(professionalId?: string): Promise<Professional[]> {
+    return this.items.filter(
+      (item) =>
+        !item.deletedAt && (professionalId ? item.id === professionalId : true),
+    );
   }
 
-  async findById(id: string): Promise<Professional | null> {
-    const professional = this.items.find((item) => item.id === id);
+  async findById(id: string, professionalId?: string): Promise<Professional | null> {
+    const professional = this.items.find(
+      (item) =>
+        item.id === id &&
+        !item.deletedAt &&
+        (professionalId ? item.id === professionalId : true),
+    );
     return professional ?? null;
   }
 
@@ -30,8 +38,13 @@ export class InMemoryProfessionalRepository implements ProfessionalRepository {
     this.items[index] = professional;
   }
 
-  async delete(id: string): Promise<boolean> {
-    const index = this.items.findIndex((item) => item.id === id);
+  async delete(id: string, professionalId?: string): Promise<boolean> {
+    const index = this.items.findIndex(
+      (item) =>
+        item.id === id &&
+        !item.deletedAt &&
+        (professionalId ? item.id === professionalId : true),
+    );
 
     if (index === -1) {
       return false;

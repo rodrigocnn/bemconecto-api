@@ -6,6 +6,7 @@ import {
   Param,
   Patch,
   Post,
+  Req,
 } from '@nestjs/common';
 
 import { Result } from '@/application/shared/result';
@@ -18,6 +19,7 @@ import { SessionMapper } from '@/presentation/session/mappers/session.mapper';
 import { Session } from '@/domain/session/entities/session';
 import { getErrorMessage } from '@/presentation/shared/get-error-message';
 import { UpdateSessionDto } from '@/presentation/session/dtos/update-session.dto';
+import { AuthenticatedRequest } from '@/infra/auth/authenticated-request';
 
 @Controller('sessions')
 export class SessionController {
@@ -29,8 +31,14 @@ export class SessionController {
   ) {}
 
   @Post()
-  async create(@Body() body: CreateSessionDto): Promise<Result<Session>> {
-    const result = await this.createSessionUseCase.execute(body);
+  async create(
+    @Body() body: CreateSessionDto,
+    @Req() request: AuthenticatedRequest,
+  ): Promise<Result<Session>> {
+    const result = await this.createSessionUseCase.execute({
+      ...body,
+      professionalId: request.user.professionalId,
+    });
 
     if (!result.success) {
       return {
@@ -46,10 +54,14 @@ export class SessionController {
   }
 
   @Get()
-  async findAll(): Promise<
+  async findAll(
+    @Req() request: AuthenticatedRequest,
+  ): Promise<
     Result<ReturnType<typeof SessionMapper.toHttpMany>>
   > {
-    const result = await this.findAllSessionsUseCase.execute();
+    const result = await this.findAllSessionsUseCase.execute(
+      request.user.professionalId,
+    );
 
     if (!result.success) {
       return {
@@ -68,8 +80,13 @@ export class SessionController {
   async update(
     @Param('id') id: string,
     @Body() body: UpdateSessionDto,
+    @Req() request: AuthenticatedRequest,
   ): Promise<Result<ReturnType<typeof SessionMapper.toHttp>>> {
-    const result = await this.updateSessionUseCase.execute(id, body);
+    const result = await this.updateSessionUseCase.execute(
+      id,
+      body,
+      request.user.professionalId,
+    );
 
     if (!result.success) {
       return {
@@ -87,8 +104,12 @@ export class SessionController {
   @Delete(':id')
   async delete(
     @Param('id') id: string,
+    @Req() request: AuthenticatedRequest,
   ): Promise<Result<ReturnType<typeof SessionMapper.toHttp>>> {
-    const result = await this.deleteSessionUseCase.execute(id);
+    const result = await this.deleteSessionUseCase.execute(
+      id,
+      request.user.professionalId,
+    );
 
     if (!result.success) {
       return {

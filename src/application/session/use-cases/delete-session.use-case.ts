@@ -5,9 +5,9 @@ import { Session } from '@/domain/session/entities/session';
 export class DeleteSessionUseCase {
   constructor(private readonly sessionRepository: SessionRepository) {}
 
-  async execute(id: string): Promise<Result<Session>> {
+  async execute(id: string, professionalId: string): Promise<Result<Session>> {
     try {
-      const session = await this.sessionRepository.delete(id);
+      const session = await this.sessionRepository.delete(id, professionalId);
 
       if (!session) {
         return Result.fail(`Session with id "${id}" not found`);

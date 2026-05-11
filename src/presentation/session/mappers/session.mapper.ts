@@ -5,6 +5,7 @@ export class SessionMapper {
   static toHttp(session: Session) {
     return {
       id: session.id,
+      professionalId: session.professionalId,
       patientId: session.patientId,
       sessionDate: session.sessionDate,
       summary: session.summary,

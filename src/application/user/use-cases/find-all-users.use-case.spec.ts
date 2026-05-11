@@ -4,7 +4,7 @@ import { UserType } from '@/domain/user/enums/user-type';
 import { FindAllUsersUseCase } from './find-all-users.use-case';
 
 describe('FindAllUsersUseCase', () => {
-  it('should return all users from repository', async () => {
+  it('should return all users from the same professional', async () => {
     const userRepository = new InMemoryUserRepository();
     const sut = new FindAllUsersUseCase(userRepository);
 
@@ -26,10 +26,20 @@ describe('FindAllUsersUseCase', () => {
       phone: '63988888888',
     } as User);
 
+    const anotherProfessionalUser = new User({
+      name: 'Ana Souza',
+      email: 'ana@example.com',
+      password: '789123',
+      userType: UserType.ADMIN,
+      professionalId: 'professional-2',
+      phone: '63977777777',
+    } as User);
+
     await userRepository.create(firstUser);
     await userRepository.create(secondUser);
+    await userRepository.create(anotherProfessionalUser);
 
-    const result = await sut.execute();
+    const result = await sut.execute('professional-1');
 
     expect(result.success).toBe(true);
     if (!result.success) {

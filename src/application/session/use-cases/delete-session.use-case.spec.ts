@@ -8,6 +8,7 @@ describe('DeleteSessionUseCase', () => {
     const sut = new DeleteSessionUseCase(sessionRepository);
 
     const session = new Session({
+      professionalId: 'professional-1',
       patientId: 'patient-1',
       sessionDate: new Date('2026-05-01T10:00:00.000Z'),
       summary: 'Resumo',
@@ -15,7 +16,7 @@ describe('DeleteSessionUseCase', () => {
 
     await sessionRepository.create(session);
 
-    const result = await sut.execute(session.id);
+    const result = await sut.execute(session.id, 'professional-1');
 
     expect(result.success).toBe(true);
 
@@ -24,14 +25,14 @@ describe('DeleteSessionUseCase', () => {
       expect(result.data.deletedAt).toBeInstanceOf(Date);
     }
 
-    expect(await sessionRepository.findAll()).toHaveLength(0);
+    expect(await sessionRepository.findAll('professional-1')).toHaveLength(0);
   });
 
   it('should return failure when session does not exist', async () => {
     const sessionRepository = new InMemorySessionRepository();
     const sut = new DeleteSessionUseCase(sessionRepository);
 
-    const result = await sut.execute('non-existing-id');
+    const result = await sut.execute('non-existing-id', 'professional-1');
 
     expect(result).toEqual({
       success: false,

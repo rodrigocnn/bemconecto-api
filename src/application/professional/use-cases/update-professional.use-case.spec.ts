@@ -29,13 +29,17 @@ describe('UpdateProfessionalUseCase', () => {
       return;
     }
 
-    const result = await sut.execute(createResult.data.id, {
-      name: 'Maria Oliveira',
-      phone: '63911111111',
-      notes: 'Notas atualizadas',
-      gender: Gender.MALE,
-      birthDate: new Date('1991-06-21'),
-    });
+    const result = await sut.execute(
+      createResult.data.id,
+      {
+        name: 'Maria Oliveira',
+        phone: '63911111111',
+        notes: 'Notas atualizadas',
+        gender: Gender.MALE,
+        birthDate: new Date('1991-06-21'),
+      },
+      createResult.data.id,
+    );
 
     expect(result.success).toBe(true);
 
@@ -78,9 +82,13 @@ describe('UpdateProfessionalUseCase', () => {
     const originalBirthDate = createResult.data.birthDate;
     const originalGender = createResult.data.gender;
 
-    const result = await sut.execute(createResult.data.id, {
-      notes: 'Notas atualizadas',
-    });
+    const result = await sut.execute(
+      createResult.data.id,
+      {
+        notes: 'Notas atualizadas',
+      },
+      createResult.data.id,
+    );
 
     expect(result.success).toBe(true);
 
@@ -96,9 +104,13 @@ describe('UpdateProfessionalUseCase', () => {
     const professionalRepository = new InMemoryProfessionalRepository();
     const sut = new UpdateProfessionalUseCase(professionalRepository);
 
-    const result = await sut.execute('non-existing-id', {
-      name: 'Maria Oliveira',
-    });
+    const result = await sut.execute(
+      'non-existing-id',
+      {
+        name: 'Maria Oliveira',
+      },
+      'professional-1',
+    );
 
     expect(result).toEqual({
       success: false,

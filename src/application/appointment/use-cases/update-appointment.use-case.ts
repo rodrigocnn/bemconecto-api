@@ -13,16 +13,23 @@ export class UpdateAppointmentUseCase {
   async execute(
     id: string,
     input: UpdateAppointmentDto,
+    professionalId: string,
   ): Promise<Result<Appointment>> {
     try {
-      const appointment = await this.appointmentRepository.findById(id);
+      const appointment = await this.appointmentRepository.findById(
+        id,
+        professionalId,
+      );
 
       if (!appointment) {
         return Result.fail('Appointment not found');
       }
 
       if (input.patientId) {
-        const patient = await this.patientRepository.findById(input.patientId);
+        const patient = await this.patientRepository.findById(
+          input.patientId,
+          professionalId,
+        );
 
         if (!patient) {
           return Result.fail('Patient not found');

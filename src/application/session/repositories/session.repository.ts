@@ -5,7 +5,11 @@ export const SESSION_REPOSITORY = Symbol('SESSION_REPOSITORY');
 
 export interface SessionRepository {
   create(session: Session): Promise<void>;
-  findAll(): Promise<Session[]>;
-  update(id: string, data: UpdateSessionDto): Promise<Session | null>;
-  delete(id: string): Promise<Session | null>;
+  findAll(professionalId: string): Promise<Session[]>;
+  update(
+    id: string,
+    data: UpdateSessionDto,
+    professionalId: string,
+  ): Promise<Session | null>;
+  delete(id: string, professionalId: string): Promise<Session | null>;
 }

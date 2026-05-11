@@ -22,9 +22,13 @@ export class AppointmentController {
   @Post()
   async create(
     @Body() body: CreateAppointmentDto,
+    @Req() request: AuthenticatedRequest,
   ): Promise<Result<ReturnType<typeof AppointmentMapper.toHttp>>> {
     const result: Result<Appointment> =
-      await this.createAppointmentUseCase.execute(body);
+      await this.createAppointmentUseCase.execute({
+        ...body,
+        professionalId: request.user.professionalId,
+      });
 
     if (!result.success) {
       return {
@@ -64,9 +68,14 @@ export class AppointmentController {
   async update(
     @Param('id') id: string,
     @Body() body: UpdateAppointmentDto,
+    @Req() request: AuthenticatedRequest,
   ): Promise<Result<ReturnType<typeof AppointmentMapper.toHttp>>> {
     const result: Result<Appointment> =
-      await this.updateAppointmentUseCase.execute(id, body);
+      await this.updateAppointmentUseCase.execute(
+        id,
+        body,
+        request.user.professionalId,
+      );
 
     if (!result.success) {
       return {

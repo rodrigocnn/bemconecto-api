@@ -13,8 +13,12 @@ export interface UpdateUserRepositoryInput {
 
 export interface UserRepository {
   create(user: User): Promise<void>;
-  findAll(): Promise<User[]>;
+  findAll(professionalId?: string): Promise<User[]>;
   findByEmail(email: string): Promise<User | null>;
-  update(id: string, data: UpdateUserRepositoryInput): Promise<User | null>;
-  delete(id: string): Promise<User | null>;
+  update(
+    id: string,
+    data: UpdateUserRepositoryInput,
+    professionalId?: string,
+  ): Promise<User | null>;
+  delete(id: string, professionalId?: string): Promise<User | null>;
 }

@@ -6,15 +6,18 @@ export class DeleteProfessionalUseCase {
     private readonly professionalRepository: ProfessionalRepository,
   ) {}
 
-  async execute(id: string): Promise<Result<boolean>> {
+  async execute(id: string, professionalId: string): Promise<Result<boolean>> {
     try {
-      const professional = await this.professionalRepository.findById(id);
+      const professional = await this.professionalRepository.findById(
+        id,
+        professionalId,
+      );
 
       if (!professional) {
         return Result.fail('Professional not found');
       }
 
-      await this.professionalRepository.delete(id);
+      await this.professionalRepository.delete(id, professionalId);
 
       return Result.ok(true);
     } catch (error) {

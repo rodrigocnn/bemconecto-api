@@ -12,9 +12,13 @@ export class UpdateProfessionalUseCase {
   async execute(
     id: string,
     input: UpdateProfessionalDto,
+    professionalId: string,
   ): Promise<Result<Professional>> {
     try {
-      const professional = await this.professionalRepository.findById(id);
+      const professional = await this.professionalRepository.findById(
+        id,
+        professionalId,
+      );
 
       if (!professional) {
         return Result.fail('Professional not found');

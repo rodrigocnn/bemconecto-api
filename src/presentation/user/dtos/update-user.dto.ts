@@ -6,5 +6,4 @@ export class UpdateUserDto {
   password?: string;
   phone?: string;
   userType?: UserType;
-  professionalId?: string;
 }

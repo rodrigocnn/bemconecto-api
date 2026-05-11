@@ -11,12 +11,19 @@ export class InMemoryAppointmentRepository implements AppointmentRepository {
     this.items.push(appointment);
   }
 
-  async findAll(): Promise<Appointment[]> {
-    return this.items.filter((item) => !item.deletedAt);
+  async findAll(professionalId: string): Promise<Appointment[]> {
+    return this.items.filter(
+      (item) => !item.deletedAt && item.professionalId === professionalId,
+    );
   }
 
-  async findById(id: string): Promise<Appointment | null> {
-    const appointment = this.items.find((item) => item.id === id && !item.deletedAt);
+  async findById(id: string, professionalId?: string): Promise<Appointment | null> {
+    const appointment = this.items.find(
+      (item) =>
+        item.id === id &&
+        !item.deletedAt &&
+        (professionalId ? item.professionalId === professionalId : true),
+    );
     return appointment ?? null;
   }
 
@@ -31,8 +38,13 @@ export class InMemoryAppointmentRepository implements AppointmentRepository {
     this.items[index] = appointment;
   }
 
-  async delete(id: string): Promise<boolean> {
-    const index = this.items.findIndex((item) => item.id === id && !item.deletedAt);
+  async delete(id: string, professionalId?: string): Promise<boolean> {
+    const index = this.items.findIndex(
+      (item) =>
+        item.id === id &&
+        !item.deletedAt &&
+        (professionalId ? item.professionalId === professionalId : true),
+    );
 
     if (index === -1) {
       return false;

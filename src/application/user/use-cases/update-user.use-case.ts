@@ -13,20 +13,26 @@ export interface UpdateUserUseCaseInput {
   password?: string;
   phone?: string;
   userType?: UserType;
-  professionalId?: string;
 }
 
 export class UpdateUserUseCase {
   constructor(private readonly userRepository: UserRepository) {}
 
-  async execute(input: UpdateUserUseCaseInput): Promise<Result<User>> {
+  async execute(
+    input: UpdateUserUseCaseInput,
+    professionalId: string,
+  ): Promise<Result<User>> {
     try {
       const { id, ...data } = input;
       const updateData: UpdateUserRepositoryInput = {
         ...data,
       };
 
-      const user = await this.userRepository.update(id, updateData);
+      const user = await this.userRepository.update(
+        id,
+        updateData,
+        professionalId,
+      );
 
       if (!user) {
         return Result.fail(`User with id "${id}" not found`);

@@ -29,7 +29,7 @@ describe('DeleteProfessionalUseCase', () => {
       return;
     }
 
-    const result = await sut.execute(createResult.data.id);
+    const result = await sut.execute(createResult.data.id, createResult.data.id);
 
     expect(result).toEqual({
       success: true,
@@ -42,7 +42,7 @@ describe('DeleteProfessionalUseCase', () => {
     const professionalRepository = new InMemoryProfessionalRepository();
     const sut = new DeleteProfessionalUseCase(professionalRepository);
 
-    const result = await sut.execute('non-existing-id');
+    const result = await sut.execute('non-existing-id', 'professional-1');
 
     expect(result).toEqual({
       success: false,

@@ -6,9 +6,17 @@ import { UpdateSessionDto } from '@/presentation/session/dtos/update-session.dto
 export class UpdateSessionUseCase {
   constructor(private readonly sessionRepository: SessionRepository) {}
 
-  async execute(id: string, input: UpdateSessionDto): Promise<Result<Session>> {
+  async execute(
+    id: string,
+    input: UpdateSessionDto,
+    professionalId: string,
+  ): Promise<Result<Session>> {
     try {
-      const session = await this.sessionRepository.update(id, input);
+      const session = await this.sessionRepository.update(
+        id,
+        input,
+        professionalId,
+      );
 
       if (!session) {
         return Result.fail(`Session with id "${id}" not found`);

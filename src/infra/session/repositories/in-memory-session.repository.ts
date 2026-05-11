@@ -13,16 +13,22 @@ export class InMemorySessionRepository implements SessionRepository {
     this.items.push(session);
   }
 
-  async findAll(): Promise<Session[]> {
-    return this.items.filter((item) => !item.deletedAt);
+  async findAll(professionalId: string): Promise<Session[]> {
+    return this.items.filter(
+      (item) => !item.deletedAt && item.professionalId === professionalId,
+    );
   }
 
   async update(
     id: string,
     data: UpdateSessionDto,
+    professionalId: string,
   ): Promise<Session | null> {
     const sessionIndex = this.items.findIndex(
-      (item) => item.id === id && !item.deletedAt,
+      (item) =>
+        item.id === id &&
+        !item.deletedAt &&
+        item.professionalId === professionalId,
     );
 
     if (sessionIndex === -1) {
@@ -41,9 +47,12 @@ export class InMemorySessionRepository implements SessionRepository {
     return updatedSession;
   }
 
-  async delete(id: string): Promise<Session | null> {
+  async delete(id: string, professionalId: string): Promise<Session | null> {
     const sessionIndex = this.items.findIndex(
-      (item) => item.id === id && !item.deletedAt,
+      (item) =>
+        item.id === id &&
+        !item.deletedAt &&
+        item.professionalId === professionalId,
     );
 
     if (sessionIndex === -1) {

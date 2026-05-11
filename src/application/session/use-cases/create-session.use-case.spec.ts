@@ -7,6 +7,7 @@ describe('CreateSessionUseCase', () => {
     const sut = new CreateSessionUseCase(sessionRepository);
 
     const result = await sut.execute({
+      professionalId: 'professional-1',
       patientId: 'patient-123',
       sessionDate: new Date('2026-05-01T10:00:00.000Z'),
       summary: 'Paciente apresentou melhora no humor.',
