@@ -28,10 +28,11 @@ export class PrismaAppoitmentRepository implements AppointmentRepository {
     });
   }
 
-  async findAll(): Promise<Appointment[]> {
+  async findAll(professionalId: string): Promise<Appointment[]> {
     const appointments = await this.prisma.client.appointment.findMany({
       where: {
         deletedAt: null,
+        professionalId: professionalId,
       },
     });
 

@@ -17,4 +17,8 @@ export class AppointmentMapper {
       updatedAt: appointment.updatedAt,
     };
   }
+
+  static toHttpMany(appointments: Appointment[]) {
+    return appointments.map((appointment) => this.toHttp(appointment));
+  }
 }
