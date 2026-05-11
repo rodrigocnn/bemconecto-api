@@ -4,38 +4,41 @@ import { CreateSessionUseCase } from '@/application/session/use-cases/create-ses
 import { DeleteSessionUseCase } from '@/application/session/use-cases/delete-session.use-case';
 import { FindAllSessionsUseCase } from '@/application/session/use-cases/find-all-sessions.use-case';
 import { UpdateSessionUseCase } from '@/application/session/use-cases/update-session.use-case';
+import { PrismaModule } from '@/infra/database/prisma/prisma.module';
 import { SessionController } from '@/presentation/session/controllers/session.controller';
-import { InMemorySessionRepository } from './repositories/in-memory-session.repository';
+
+import { PrismaSessionRepository } from './repositories/prisma-session.repository';
 
 @Module({
+  imports: [PrismaModule],
   controllers: [SessionController],
   providers: [
-    InMemorySessionRepository,
+    PrismaSessionRepository,
     {
       provide: SESSION_REPOSITORY,
-      useExisting: InMemorySessionRepository,
+      useExisting: PrismaSessionRepository,
     },
     {
       provide: CreateSessionUseCase,
-      useFactory: (sessionRepository: InMemorySessionRepository) =>
+      useFactory: (sessionRepository: PrismaSessionRepository) =>
         new CreateSessionUseCase(sessionRepository),
       inject: [SESSION_REPOSITORY],
     },
     {
       provide: FindAllSessionsUseCase,
-      useFactory: (sessionRepository: InMemorySessionRepository) =>
+      useFactory: (sessionRepository: PrismaSessionRepository) =>
         new FindAllSessionsUseCase(sessionRepository),
       inject: [SESSION_REPOSITORY],
     },
     {
       provide: UpdateSessionUseCase,
-      useFactory: (sessionRepository: InMemorySessionRepository) =>
+      useFactory: (sessionRepository: PrismaSessionRepository) =>
         new UpdateSessionUseCase(sessionRepository),
       inject: [SESSION_REPOSITORY],
     },
     {
       provide: DeleteSessionUseCase,
-      useFactory: (sessionRepository: InMemorySessionRepository) =>
+      useFactory: (sessionRepository: PrismaSessionRepository) =>
         new DeleteSessionUseCase(sessionRepository),
       inject: [SESSION_REPOSITORY],
     },
