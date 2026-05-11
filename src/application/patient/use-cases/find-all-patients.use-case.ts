@@ -5,9 +5,9 @@ import { Patient } from '@/domain/patients/entities/patient';
 export class FindAllPatientsUseCase {
   constructor(private readonly patientRepository: PatientRepository) {}
 
-  async execute(): Promise<Result<Patient[]>> {
+  async execute(professionalId: string): Promise<Result<Patient[]>> {
     try {
-      const patients = await this.patientRepository.findAll();
+      const patients = await this.patientRepository.findAll(professionalId);
 
       return Result.ok(patients);
     } catch (error) {

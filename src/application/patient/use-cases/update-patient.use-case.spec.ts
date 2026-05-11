@@ -27,13 +27,17 @@ describe('UpdatePatientUseCase', () => {
       return;
     }
 
-    const result = await sut.execute(createResult.data.id, {
-      name: 'Maria Oliveira',
-      phone: '63911111111',
-      notes: 'Notas atualizadas',
-      gender: Gender.MALE,
-      birthDate: new Date('1991-06-21'),
-    });
+    const result = await sut.execute(
+      createResult.data.id,
+      {
+        name: 'Maria Oliveira',
+        phone: '63911111111',
+        notes: 'Notas atualizadas',
+        gender: Gender.MALE,
+        birthDate: new Date('1991-06-21'),
+      },
+      'professional-1',
+    );
 
     expect(result.success).toBe(true);
 
@@ -53,9 +57,13 @@ describe('UpdatePatientUseCase', () => {
     const patientRepository = new InMemoryPatientRepository();
     const sut = new UpdatePatientUseCase(patientRepository);
 
-    const result = await sut.execute('non-existing-id', {
-      name: 'Maria Oliveira',
-    });
+    const result = await sut.execute(
+      'non-existing-id',
+      {
+        name: 'Maria Oliveira',
+      },
+      'professional-1',
+    );
 
     expect(result).toEqual({
       success: false,

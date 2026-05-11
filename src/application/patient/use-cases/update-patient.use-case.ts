@@ -6,9 +6,13 @@ import { UpdatePatientDto } from '@/presentation/patient/dtos/update-patient.dto
 export class UpdatePatientUseCase {
   constructor(private readonly patientRepository: PatientRepository) {}
 
-  async execute(id: string, input: UpdatePatientDto): Promise<Result<Patient>> {
+  async execute(
+    id: string,
+    input: UpdatePatientDto,
+    professionalId: string,
+  ): Promise<Result<Patient>> {
     try {
-      const patient = await this.patientRepository.findById(id);
+      const patient = await this.patientRepository.findById(id, professionalId);
 
       if (!patient) {
         return Result.fail('Patient not found');

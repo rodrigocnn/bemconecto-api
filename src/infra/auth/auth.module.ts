@@ -6,7 +6,9 @@ import { LoginUseCase } from '@/application/auth/use-cases/login.use-case';
 import { USER_REPOSITORY } from '@/application/user/repositories/user.repository';
 
 import { AuthController } from '@/presentation/auth/controllers/auth.controller';
+import { PrismaModule } from '@/infra/database/prisma/prisma.module';
 
+import { AuthMiddleware } from './auth.middleware';
 import { JwtTokenProvider } from './providers/jwt-token.provider';
 import { HASH_PROVIDER } from '@/application/auth/providers/hash.provider';
 import { BcryptHashProvider } from '../bcrypt/bcrypt-hash.provider';
@@ -15,6 +17,7 @@ import { UserModule } from '@/infra/user/user.module';
 @Module({
   imports: [
     UserModule,
+    PrismaModule,
     JwtModule.register({
       secret: process.env.JWT_SECRET,
       signOptions: {
@@ -22,8 +25,10 @@ import { UserModule } from '@/infra/user/user.module';
       },
     }),
   ],
+  exports: [JwtModule, AuthMiddleware],
   controllers: [AuthController],
   providers: [
+    AuthMiddleware,
     BcryptHashProvider,
     JwtTokenProvider,
 

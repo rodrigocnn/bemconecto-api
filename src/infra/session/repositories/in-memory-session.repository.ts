@@ -1,8 +1,8 @@
 import {
   SessionRepository,
-  UpdateSessionRepositoryInput,
 } from '@/application/session/repositories/session.repository';
 import { Session } from '@/domain/session/entities/session';
+import { UpdateSessionDto } from '@/presentation/session/dtos/update-session.dto';
 import { Injectable } from '@nestjs/common';
 
 @Injectable()
@@ -19,7 +19,7 @@ export class InMemorySessionRepository implements SessionRepository {
 
   async update(
     id: string,
-    data: UpdateSessionRepositoryInput,
+    data: UpdateSessionDto,
   ): Promise<Session | null> {
     const sessionIndex = this.items.findIndex(
       (item) => item.id === id && !item.deletedAt,

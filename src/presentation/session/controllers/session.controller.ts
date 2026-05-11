@@ -1,13 +1,18 @@
-import { Body, Controller, Delete, Get, Param, Patch, Post } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Param,
+  Patch,
+  Post,
+} from '@nestjs/common';
 
 import { Result } from '@/application/shared/result';
 import { CreateSessionUseCase } from '@/application/session/use-cases/create-session.use-case';
 import { DeleteSessionUseCase } from '@/application/session/use-cases/delete-session.use-case';
 import { FindAllSessionsUseCase } from '@/application/session/use-cases/find-all-sessions.use-case';
-import {
-  UpdateSessionUseCase,
-  UpdateSessionUseCaseInput,
-} from '@/application/session/use-cases/update-session.use-case';
+import { UpdateSessionUseCase } from '@/application/session/use-cases/update-session.use-case';
 import { CreateSessionDto } from '@/domain/session/dtos/create-session.dto';
 import { SessionMapper } from '@/presentation/session/mappers/session.mapper';
 import { Session } from '@/domain/session/entities/session';
@@ -41,7 +46,9 @@ export class SessionController {
   }
 
   @Get()
-  async findAll(): Promise<Result<ReturnType<typeof SessionMapper.toHttpMany>>> {
+  async findAll(): Promise<
+    Result<ReturnType<typeof SessionMapper.toHttpMany>>
+  > {
     const result = await this.findAllSessionsUseCase.execute();
 
     if (!result.success) {
@@ -62,12 +69,7 @@ export class SessionController {
     @Param('id') id: string,
     @Body() body: UpdateSessionDto,
   ): Promise<Result<ReturnType<typeof SessionMapper.toHttp>>> {
-    const input: UpdateSessionUseCaseInput = {
-      id,
-      ...body,
-    };
-
-    const result = await this.updateSessionUseCase.execute(input);
+    const result = await this.updateSessionUseCase.execute(id, body);
 
     if (!result.success) {
       return {

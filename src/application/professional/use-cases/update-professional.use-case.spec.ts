@@ -51,6 +51,47 @@ describe('UpdateProfessionalUseCase', () => {
     expect(professionalRepository.items[0].name).toBe('Maria Oliveira');
   });
 
+  it('should preserve fields that are not provided in a partial update', async () => {
+    const professionalRepository = new InMemoryProfessionalRepository();
+    const createProfessionalUseCase = new CreateProfessionalUseCase(
+      professionalRepository,
+    );
+    const sut = new UpdateProfessionalUseCase(professionalRepository);
+
+    const createResult = await createProfessionalUseCase.execute({
+      name: 'Maria Silva',
+      email: 'maria@example.com',
+      cpf: '12345678900',
+      rg: '1234567',
+      phone: '63999999999',
+      birthDate: new Date('1990-05-20'),
+      crp: '06/12345',
+      notes: 'Anotacoes',
+      gender: Gender.FEMALE,
+    });
+
+    expect(createResult.success).toBe(true);
+    if (!createResult.success) {
+      return;
+    }
+
+    const originalBirthDate = createResult.data.birthDate;
+    const originalGender = createResult.data.gender;
+
+    const result = await sut.execute(createResult.data.id, {
+      notes: 'Notas atualizadas',
+    });
+
+    expect(result.success).toBe(true);
+
+    if (result.success) {
+      expect(result.data.notes).toBe('Notas atualizadas');
+      expect(result.data.birthDate).toEqual(originalBirthDate);
+      expect(result.data.gender).toBe(originalGender);
+      expect(result.data.name).toBe('Maria Silva');
+    }
+  });
+
   it('should return failure when professional does not exist', async () => {
     const professionalRepository = new InMemoryProfessionalRepository();
     const sut = new UpdateProfessionalUseCase(professionalRepository);

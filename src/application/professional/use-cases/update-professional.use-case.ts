@@ -20,18 +20,14 @@ export class UpdateProfessionalUseCase {
         return Result.fail('Professional not found');
       }
 
-      Object.assign(professional, {
-        ...input,
-        birthDate: input.birthDate
-          ? new Date(input.birthDate)
-          : professional.birthDate,
-      });
-
+      professional.update(input);
       await this.professionalRepository.update(professional);
 
       return Result.ok(professional);
     } catch (error) {
-      return Result.fail(error instanceof Error ? error.message : 'Unexpected error');
+      return Result.fail(
+        error instanceof Error ? error.message : 'Unexpected error',
+      );
     }
   }
 }

@@ -1,4 +1,13 @@
-import { Body, Controller, Delete, Get, Param, Patch, Post } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Param,
+  Patch,
+  Post,
+  Req,
+} from '@nestjs/common';
 
 import { Result } from '@/application/shared/result';
 import { CreatePatientUseCase } from '@/application/patient/use-cases/create-patient.use-case';
@@ -9,6 +18,7 @@ import { CreatePatientDto } from '@/presentation/patient/dtos/create-patient.dto
 import { UpdatePatientDto } from '@/presentation/patient/dtos/update-patient.dto';
 import { PatientMapper } from '@/presentation/patient/mappers/patient.mapper';
 import { getErrorMessage } from '@/presentation/shared/get-error-message';
+import { AuthenticatedRequest } from '@/infra/auth/authenticated-request';
 
 @Controller('patients')
 export class PatientController {
@@ -20,8 +30,14 @@ export class PatientController {
   ) {}
 
   @Post()
-  async create(@Body() body: CreatePatientDto): Promise<Result<ReturnType<typeof PatientMapper.toHttp>>> {
-    const result = await this.createPatientUseCase.execute(body);
+  async create(
+    @Body() body: CreatePatientDto,
+    @Req() request: AuthenticatedRequest,
+  ): Promise<Result<ReturnType<typeof PatientMapper.toHttp>>> {
+    const result = await this.createPatientUseCase.execute({
+      ...body,
+      professionalId: request.user.professionalId,
+    });
 
     if (!result.success) {
       return {
@@ -37,8 +53,12 @@ export class PatientController {
   }
 
   @Get()
-  async findAll(): Promise<Result<ReturnType<typeof PatientMapper.toHttp>[]>> {
-    const result = await this.findAllPatientsUseCase.execute();
+  async findAll(
+    @Req() request: AuthenticatedRequest,
+  ): Promise<Result<ReturnType<typeof PatientMapper.toHttp>[]>> {
+    const result = await this.findAllPatientsUseCase.execute(
+      request.user.professionalId,
+    );
 
     if (!result.success) {
       return {
@@ -57,8 +77,13 @@ export class PatientController {
   async update(
     @Param('id') id: string,
     @Body() body: UpdatePatientDto,
+    @Req() request: AuthenticatedRequest,
   ): Promise<Result<ReturnType<typeof PatientMapper.toHttp>>> {
-    const result = await this.updatePatientUseCase.execute(id, body);
+    const result = await this.updatePatientUseCase.execute(
+      id,
+      body,
+      request.user.professionalId,
+    );
 
     if (!result.success) {
       return {
@@ -74,8 +99,14 @@ export class PatientController {
   }
 
   @Delete(':id')
-  async delete(@Param('id') id: string): Promise<Result<boolean>> {
-    const result = await this.deletePatientUseCase.execute(id);
+  async delete(
+    @Param('id') id: string,
+    @Req() request: AuthenticatedRequest,
+  ): Promise<Result<boolean>> {
+    const result = await this.deletePatientUseCase.execute(
+      id,
+      request.user.professionalId,
+    );
 
     if (!result.success) {
       return {

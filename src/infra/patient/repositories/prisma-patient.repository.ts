@@ -28,27 +28,23 @@ export class PrismaPatientRepository implements PatientRepository {
     });
   }
 
-  async findAll(): Promise<Patient[]> {
+  async findAll(professionalId?: string): Promise<Patient[]> {
     const patients = await this.prisma.client.patient.findMany({
       where: {
         deletedAt: null,
+        ...(professionalId ? { professionalId } : {}),
       },
     });
 
-    return patients.map(
-      (patient) =>
-        new Patient({
-          ...(patient as unknown as Patient),
-          birthDate: patient.birth,
-        } as Patient),
-    );
+    return patients.map((patient) => new Patient(patient as unknown as Patient));
   }
 
-  async findById(id: string): Promise<Patient | null> {
+  async findById(id: string, professionalId?: string): Promise<Patient | null> {
     const patient = await this.prisma.client.patient.findFirst({
       where: {
         id,
         deletedAt: null,
+        ...(professionalId ? { professionalId } : {}),
       },
     });
 
@@ -56,10 +52,7 @@ export class PrismaPatientRepository implements PatientRepository {
       return null;
     }
 
-    return new Patient({
-      ...(patient as unknown as Patient),
-      birthDate: patient.birth,
-    } as Patient);
+    return new Patient(patient as unknown as Patient);
   }
 
   async update(patient: Patient): Promise<void> {
@@ -70,23 +63,25 @@ export class PrismaPatientRepository implements PatientRepository {
       data: {
         name: patient.name,
         phone: patient.phone,
-        birth: patient.birthDate,
+        birthDate: patient.birthDate,
         notes: patient.notes,
         gender: patient.gender,
       },
     });
   }
 
-  async delete(id: string): Promise<boolean> {
-    await this.prisma.client.patient.update({
+  async delete(id: string, professionalId?: string): Promise<boolean> {
+    const result = await this.prisma.client.patient.updateMany({
       where: {
         id,
+        deletedAt: null,
+        ...(professionalId ? { professionalId } : {}),
       },
       data: {
         deletedAt: new Date(),
       },
     });
 
-    return true;
+    return result.count > 0;
   }
 }

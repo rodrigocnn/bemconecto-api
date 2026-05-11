@@ -9,5 +9,4 @@ export class CreatePatientDto {
   birthDate!: Date;
   notes?: string;
   gender!: Gender;
-  professionalId!: string;
 }

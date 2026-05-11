@@ -15,8 +15,7 @@ describe('UpdateSessionUseCase', () => {
 
     await sessionRepository.create(session);
 
-    const result = await sut.execute({
-      id: session.id,
+    const result = await sut.execute(session.id, {
       summary: 'Resumo atualizado',
       techniqueUsed: 'TCC',
     });
@@ -36,8 +35,7 @@ describe('UpdateSessionUseCase', () => {
     const sessionRepository = new InMemorySessionRepository();
     const sut = new UpdateSessionUseCase(sessionRepository);
 
-    const result = await sut.execute({
-      id: 'non-existing-id',
+    const result = await sut.execute('non-existing-id', {
       summary: 'Novo resumo',
     });
 

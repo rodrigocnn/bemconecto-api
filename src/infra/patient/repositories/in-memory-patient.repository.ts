@@ -11,12 +11,21 @@ export class InMemoryPatientRepository implements PatientRepository {
     this.items.push(patient);
   }
 
-  async findAll(): Promise<Patient[]> {
-    return this.items.filter((patient) => !patient.deletedAt);
+  async findAll(professionalId?: string): Promise<Patient[]> {
+    return this.items.filter(
+      (patient) =>
+        !patient.deletedAt &&
+        (professionalId ? patient.professionalId === professionalId : true),
+    );
   }
 
-  async findById(id: string): Promise<Patient | null> {
-    const patient = this.items.find((item) => item.id === id && !item.deletedAt);
+  async findById(id: string, professionalId?: string): Promise<Patient | null> {
+    const patient = this.items.find(
+      (item) =>
+        item.id === id &&
+        !item.deletedAt &&
+        (professionalId ? item.professionalId === professionalId : true),
+    );
     return patient ?? null;
   }
 
@@ -31,8 +40,13 @@ export class InMemoryPatientRepository implements PatientRepository {
     this.items[index] = patient;
   }
 
-  async delete(id: string): Promise<boolean> {
-    const index = this.items.findIndex((item) => item.id === id && !item.deletedAt);
+  async delete(id: string, professionalId?: string): Promise<boolean> {
+    const index = this.items.findIndex(
+      (item) =>
+        item.id === id &&
+        !item.deletedAt &&
+        (professionalId ? item.professionalId === professionalId : true),
+    );
 
     if (index === -1) {
       return false;

@@ -10,16 +10,14 @@ export class CreateProfessionalUseCase {
 
   async execute(input: CreateProfessionalDto): Promise<Result<Professional>> {
     try {
-      const professional = new Professional({
-        ...input,
-        birthDate: new Date(input.birthDate),
-      } as Professional);
-
+      const professional = new Professional(input);
       await this.professionalRepository.create(professional);
 
       return Result.ok(professional);
     } catch (error) {
-      return Result.fail(error instanceof Error ? error.message : 'Unexpected error');
+      return Result.fail(
+        error instanceof Error ? error.message : 'Unexpected error',
+      );
     }
   }
 }

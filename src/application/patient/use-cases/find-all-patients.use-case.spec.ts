@@ -5,7 +5,7 @@ import { InMemoryPatientRepository } from '@/infra/patient/repositories/in-memor
 import { FindAllPatientsUseCase } from './find-all-patients.use-case';
 
 describe('FindAllPatientsUseCase', () => {
-  it('should return all non-deleted patients', async () => {
+  it('should return all non-deleted patients from the same professional', async () => {
     const patientRepository = new InMemoryPatientRepository();
     const sut = new FindAllPatientsUseCase(patientRepository);
 
@@ -32,10 +32,21 @@ describe('FindAllPatientsUseCase', () => {
       deletedAt: new Date(),
     } as Patient);
 
+    const anotherProfessionalPatient = new Patient({
+      name: 'Ana Souza',
+      email: 'ana@example.com',
+      cpf: '12345678902',
+      phone: '63977777777',
+      birthDate: new Date('1995-03-10'),
+      gender: Gender.FEMALE,
+      professionalId: 'professional-2',
+    } as Patient);
+
     await patientRepository.create(activePatient);
     await patientRepository.create(deletedPatient);
+    await patientRepository.create(anotherProfessionalPatient);
 
-    const result = await sut.execute();
+    const result = await sut.execute('professional-1');
 
     expect(result.success).toBe(true);
     if (!result.success) {

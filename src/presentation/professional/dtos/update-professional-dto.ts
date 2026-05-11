@@ -1,4 +1,4 @@
-import { Gender } from '@prisma/client';
+import { Gender } from '@/domain/professional/enums/gender';
 
 export class UpdateProfessionalDto {
   name?: string;
